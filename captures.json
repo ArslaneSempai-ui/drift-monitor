@@ -1,0 +1,42 @@
+{
+  "images": [
+    {
+      "sortie": "images/screen.png",
+      "type": "png",
+      "taille": [
+        1100,
+        2400
+      ],
+      "echelle": 2,
+      "depart": 120,
+      "hauteurUtile": 900
+    },
+    {
+      "sortie": "images/seuil.gif",
+      "type": "gif",
+      "taille": [
+        900,
+        590
+      ],
+      "echelle": 2,
+      "duree": 1400,
+      "fenetre": [
+        1100,
+        2400
+      ],
+      "depart": 600,
+      "hauteurUtile": 720,
+      "scenes": [
+        [
+          "#separation .carte-prise~0.5,0.30"
+        ],
+        [
+          "#separation .carte-prise~0.5,0.72"
+        ],
+        [
+          "#separation .carte-prise~0.5,0.93"
+        ]
+      ]
+    }
+  ]
+}

@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>The drift threshold sits above the signal</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%23fbfaf7'/%3E%3Crect x='2' y='9' width='12' height='1' fill='%23141618'/%3E%3Crect x='2' y='5' width='5' height='2' fill='%23141618'/%3E%3Crect x='9' y='3' width='5' height='2' fill='%23141618'/%3E%3C/svg%3E" />
+<link rel="stylesheet" href="/registre.css" />
+</head>
+<body>
+<main>
+  <div class="haut">
+    <div><h1 id="h1"></h1><p class="lede" id="lede"></p></div>
+  </div>
+
+  <div class="chiffres" id="releve"></div>
+  <div id="verdict"></div>
+
+  <h2 id="titreRubans"></h2>
+  <div id="separation"></div>
+
+  <h2 id="titreAnnee"></h2>
+  <div id="annee"></div>
+
+  <h2 id="titreReglage"></h2>
+  <div id="reglage"></div>
+
+  <p class="renvoi" id="provenanceLegende"></p>
+</main>
+
+<script type="module">
+import { rubans, courbe, saisir, brancher } from "/graphes.js";
+const $ = (s) => document.querySelector(s);
+const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c]));
+
+const pret = async () => { if (!window.LOCAL && window.LOCAL_PRET) await window.LOCAL_PRET; };
+const api = async (chemin, corps) => {
+  await pret();
+  if (window.LOCAL) return window.LOCAL(chemin, corps);
+  const r = await fetch(chemin, corps
+    ? { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(corps) }
+    : {});
+  return r.json();
+};
+
+const T = {
+  h1: "The drift threshold sits above the signal",
+  lede: "Every model-risk note says to alarm when the stability index passes 0.2. That number is not a property of your data — and on a shift worth catching, it is above the signal it is meant to see.",
+
+  releve: "This threshold, priced",
+  signal: "index of the shift you want to catch",
+  bruit: "index of pure noise, 95th percentile",
+  fausses: "false alarms a year",
+  jamais: "of real drifts never seen inside a year",
+
+  aveugle: (s, seuil) => `<b>The threshold is above the signal.</b> The shift you asked to catch moves the index to ${s}; the alarm is set at ${seuil}. It cannot fire on that shift — the times it fires at small windows are noise, not detection.`,
+  bruite: (n) => `<b>The threshold is inside the noise.</b> It fires ${n} times a year on data that did not move, and a team that has cried wolf three times is not believed the fourth.`,
+  bon: (d) => `<b>This threshold separates.</b> It sits above the noise and below the signal; a real shift is seen in ${d} checks.`,
+
+  titreRubans: "Where a threshold can exist at all",
+  rubansQuoi: "Two ribbons: what the index does when nothing moves, and what it does under the shift you want to catch. Both are simulated on this population. Take the line and move it — where the ribbons overlap, no line separates them, and no threshold works at any value.",
+  figRubansTitre: (n) => `Index against window size, 5th to 95th percentile over ${n} draws`,
+  figRubansAria: "Two horizontal ribbons across window size: the stability index with no drift, which narrows as the window grows, and the index under a real shift, which does not. A draggable horizontal line is the alarm threshold; where the ribbons overlap it cannot separate them.",
+  nomCalme: "nothing moved", nomDerive: "real shift",
+  axeX: "observations per check", axeY: "stability index",
+  etiqSeuil: (v) => `alarm at ${v}`,
+  separe: (f, s) => `The ribbons part at <b>${f} observations</b> per check. Below that, no threshold separates noise from this shift. Above it, the line belongs near <b>${s}</b> — not 0.2.`,
+  separePas: "The ribbons overlap at every window size on this screen: with these settings the check cannot work, whatever number is written in the note.",
+
+  titreAnnee: "A year of checks, at this setting",
+  anneeQuoi: "One seeded year, drawn as a team would see it. On the left nothing moves; on the right the shift starts halfway through. The numbers above come from repeating this many times, not from this draw.",
+  figCalmeTitre: "Nothing moved",
+  figDeriveTitre: "The shift starts halfway",
+  figAnneeAria: "The stability index at each check across a year, with the alarm threshold drawn across it.",
+  serIndice: "index", seuilLigne: "alarm",
+  bandeDerive: "shift under way",
+
+  titreReglage: "The settings",
+  reglageQuoi: "The window and the number of bins are yours. The shift worth catching is the one number nobody else can set for you: it is the smallest move that would change a decision.",
+  fenetre: "Observations per check", bandes: "Bins", seuil: "Alarm threshold",
+  controlesParAn: "Checks a year", deplacement: "Shift worth catching (σ)",
+  defaut: "Back to 0.2 and a 500-row window",
+
+  provenance: "The population is synthetic and stated as such. What is <b>measured</b> here is the behaviour of the threshold on it — false alarms and detection delay, by simulation at a fixed seed, so two visits give the same figure. The threshold 0.2 is <b>chosen</b>: it is the number the notes repeat, and pricing it is what this repository is for.",
+};
+const t = () => T;
+
+let etat = null, occupe = false, enAttente = null;
+const nb = (n) => Math.round(n).toLocaleString("en-GB");
+const n3 = (x) => x.toFixed(3);
+const pc = (x) => Math.round(x * 100) + " %";
+const lire = (v) => Number(String(v).replace(/\s/g, "").replace(",", "."));
+
+function blocReleve() {
+  const L = t(), c = etat.comportement, r = etat.rubans;
+  const i = r.fenetres.findIndex((f) => f >= etat.reglage.fenetre);
+  const bruit = r.calme.haut[Math.max(0, i)] ?? r.calme.haut[r.calme.haut.length - 1];
+  const ligne = (k, v) => `<div class="ligne"><span class="intitule">${esc(k)}</span><span class="valeur">${v}</span></div>`;
+  $("#releve").innerHTML = `<section class="feuillet">
+    <div class="titre">${esc(L.releve)}</div>
+    ${ligne(L.signal, n3(r.signal))}
+    ${ligne(L.bruit, n3(bruit))}
+    ${ligne(L.fausses, c.faussesAlertesParAn.toFixed(1))}
+    <div class="ligne total"><span class="intitule">${esc(L.jamais)}</span>
+      <span class="valeur">${pc(c.jamaisVues)}</span></div>
+  </section>`;
+}
+
+function blocVerdict() {
+  const L = t(), c = etat.comportement, r = etat.rubans, s = etat.reglage.seuil;
+  let html;
+  if (s > r.signal) html = `<div class="renvoi defavorable">${L.aveugle(n3(r.signal), n3(s))}</div>`;
+  else if (c.faussesAlertesParAn >= 1) html = `<div class="renvoi attention">${L.bruite(c.faussesAlertesParAn.toFixed(1))}</div>`;
+  else html = `<div class="renvoi favorable">${L.bon(c.delaiMedian ?? "—")}</div>`;
+  $("#verdict").innerHTML = html;
+}
+
+function blocSeparation() {
+  const L = t(), r = etat.rubans, sep = etat.separation;
+
+  /*
+   * La figure est la commande.
+   *
+   * Le seuil ne se règle pas dans un champ à côté : on le prend sur la figure où l'on voit
+   * exactement ce qu'il sépare — ou ce qu'il ne sépare pas. C'est la seule position d'où la
+   * question « ce contrôle peut-il marcher ? » a une réponse visible.
+   */
+  const fig = rubans({
+    x: { valeurs: r.fenetres, nom: L.axeX, fmt: nb, log: true },
+    rubans: [
+      { nom: L.nomCalme, bas: r.calme.bas, haut: r.calme.haut, ton: "neutre" },
+      { nom: L.nomDerive, bas: r.derive.bas, haut: r.derive.haut, ton: "accent" },
+    ],
+    seuil: { v: etat.reglage.seuil, etiquette: L.etiqSeuil(n3(etat.reglage.seuil)), saisissable: true },
+    y: { nom: L.axeY, fmt: n3 },
+    aria: L.figRubansAria,
+  });
+
+  $("#separation").innerHTML = `<section class="feuillet"><div class="corps">
+    <div class="quoi">${esc(L.rubansQuoi)}</div>
+    <div class="titre-fig">${esc(L.figRubansTitre(r.tirages))}</div>${fig}
+    <div class="suite">${sep.fenetre ? L.separe(nb(sep.fenetre), n3(sep.seuil)) : esc(L.separePas)}</div>
+  </div></section>`;
+
+  saisir($("#separation"), ({ y }) => envoyer({ seuil: Math.max(0.01, Math.min(1, y)) }),
+    { y: etat.reglage.seuil, x: 0, nom: L.seuil });
+}
+
+function blocAnnee() {
+  const L = t();
+  $("#titreAnnee").textContent = L.titreAnnee;
+  const un = (j, titre, avecBande) => {
+    const points = j.indices.map((v, i) => ({ i, v }));
+    const bandes = avecBande && j.debutDerive >= 0
+      ? [{ de: j.debutDerive, a: j.indices.length - 1, nom: L.bandeDerive }] : [];
+    return `<div class="titre-fig">${esc(titre)}</div>` + courbe({
+      points, x: (p) => p.i, bandes,
+      seuils: [{ y: etat.reglage.seuil, serie: 0, texte: L.seuilLigne }],
+      fmtX: (v) => String(Math.round(v)),
+      hauteur: 190, aria: L.figAnneeAria, legende: false,
+      series: [{ cle: (p) => p.v, nom: L.serIndice, aire: true, fmt: n3, fmtCran: n3 }],
+    });
+  };
+  $("#annee").innerHTML = `<div class="feuillet">
+    <div class="quoi">${esc(L.anneeQuoi)}</div>
+    ${un(etat.calme, L.figCalmeTitre, false)}
+    ${un(etat.derive, L.figDeriveTitre, true)}
+  </div>`;
+  brancher($("#annee"));
+}
+
+function blocReglage() {
+  const L = t();
+  $("#titreReglage").textContent = L.titreReglage;
+  const champs = Object.keys(etat.bornes).map((cle) => {
+    const [min, max] = etat.bornes[cle];
+    return `<div><label for="${cle}">${esc(L[cle] ?? cle)}</label>
+      <input type="text" inputmode="decimal" id="${cle}" value="${etat.reglage[cle]}"
+        data-min="${min}" data-max="${max}" /></div>`;
+  }).join("");
+  $("#reglage").innerHTML = `<div class="feuillet">
+    <div class="quoi">${esc(L.reglageQuoi)}</div>
+    <div class="grille">${champs}</div>
+    <button class="b remise" id="defaut" type="button">${esc(L.defaut)}</button>
+  </div>`;
+  for (const cle of Object.keys(etat.bornes)) {
+    $(`#${cle}`).onchange = (e) => envoyer({ [cle]: lire(e.target.value) });
+  }
+  $("#defaut").onclick = () => envoyer({ remise: true });
+}
+
+function dessiner() {
+  const L = t();
+  $("#h1").textContent = L.h1;
+  $("#lede").textContent = L.lede;
+  $("#titreRubans").textContent = L.titreRubans;
+  $("#provenanceLegende").innerHTML = L.provenance;
+  blocReleve(); blocVerdict(); blocSeparation(); blocAnnee(); blocReglage();
+}
+
+async function envoyer(corps) {
+  if (occupe) { enAttente = corps; return; }
+  occupe = true;
+  try { etat = await api("/api/reglage", corps ?? {}); dessiner(); }
+  finally {
+    occupe = false;
+    if (enAttente) { const suite = enAttente; enAttente = null; envoyer(suite); }
+  }
+}
+
+etat = await api("/api/etat");
+dessiner();
+</script>
+</body>
+</html>

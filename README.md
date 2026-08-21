@@ -18,7 +18,7 @@ alarm line and move it. The simulation itself runs in the page, at a fixed seed.
 
 ```bash
 npm start   # the screen, on localhost:4690
-npm test    # types and <!--p:portfolio.parDepot.derive-->29<!--/p--> tests
+npm test    # types and <!--p:portfolio.parDepot.derive-->30<!--/p--> tests
 ```
 
 Node with native TypeScript, no build step, no runtime dependencies.

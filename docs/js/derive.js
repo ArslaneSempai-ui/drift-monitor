@@ -37,6 +37,15 @@ export function normale(u) {
     const a = Math.max(u(), 1e-12), b = u();
     return Math.sqrt(-2 * Math.log(a)) * Math.cos(2 * Math.PI * b);
 }
+/**
+ * How many draws the published figures use — the page and the README share this constant.
+ *
+ * They did not. The demo called `rubans(reglage, 60)` while the README quoted a threshold
+ * computed elsewhere: a reader read 0.057, clicked through, and the screen said 0.059. Two
+ * entries, two draw counts, two answers to the same question. One constant removes the
+ * possibility rather than documenting the discrepancy.
+ */
+export const TIRAGES_PUBLIES = 60;
 export const REGLAGE = {
     fenetre: 500,
     bandes: 10,

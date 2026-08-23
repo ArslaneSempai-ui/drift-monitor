@@ -36,12 +36,12 @@ overlap, no value of it separates noise from the shift. The population is synthe
 
 <script>window.LOCAL_PRET = new Promise((r) => { window.LOCAL_POSE = r; });</script>
 <script type="module">
-import { REGLAGE, BORNES, INVENTAIRE, annee, comportement, fenetreSeparante, rubans } from "./js/derive.js";
+import { REGLAGE, BORNES, INVENTAIRE, annee, comportement, fenetreSeparante, rubans, TIRAGES_PUBLIES } from "./js/derive.js";
 
 let reglage = { ...REGLAGE };
 
 const etat = () => {
-  const r = rubans(reglage, 60);
+  const r = rubans(reglage, TIRAGES_PUBLIES);
   return {
     reglage, bornes: BORNES, inventaire: INVENTAIRE,
     rubans: r,

@@ -10,17 +10,18 @@
 
 import { readFileSync, writeFileSync, mkdirSync, cpSync } from "node:fs";
 import { isMain } from "./cli.ts";
+import { fileURLToPath } from "node:url";
 
-const root = new URL("..", import.meta.url).pathname;
+const root = fileURLToPath(new URL("..", import.meta.url));
 
 const SHIM = `<script>window.LOCAL_PRET = new Promise((r) => { window.LOCAL_POSE = r; });</` + `script>
 <script type="module">
-import { REGLAGE, BORNES, INVENTAIRE, annee, comportement, fenetreSeparante, rubans } from "./js/derive.js";
+import { REGLAGE, BORNES, INVENTAIRE, annee, comportement, fenetreSeparante, rubans, TIRAGES_PUBLIES } from "./js/derive.js";
 
 let reglage = { ...REGLAGE };
 
 const etat = () => {
-  const r = rubans(reglage, 60);
+  const r = rubans(reglage, TIRAGES_PUBLIES);
   return {
     reglage, bornes: BORNES, inventaire: INVENTAIRE,
     rubans: r,

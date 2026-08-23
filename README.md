@@ -4,12 +4,14 @@ Every model-risk note says the same thing: monitor the population stability inde
 when it passes **0.2**. That number is repeated as if it were a property of the world. It
 is not, and this prices it.
 
-**The finding.** A shift of 0.3 standard deviations — enough to matter on a risk model —
-moves the index to **0.090** on this population. The alarm is set at **0.200**. It is above
-the signal it exists to see: it cannot fire on that shift at any window size, and the times
-it does fire on small windows are noise, not detection. Below **350 observations per check**
-the two ribbons overlap and no threshold separates them at all. Where one exists, it belongs
-near **0.057**.
+<!-- figures:lede -->
+**The finding.** A shift of 0.3 standard deviations — enough to matter
+on a risk model — moves the index to **0.087** on this population. The alarm is
+set at **0.200**. It is above the signal it exists to see: it cannot fire on that
+shift at any window size, and the times it does fire on small windows are noise, not
+detection. Below **350 observations per check** the two ribbons overlap and no
+threshold separates them at all. Where one exists, it belongs near **0.059**.
+<!-- /figures:lede -->
 
 **[Try it in your browser →](https://arslanesempai-ui.github.io/drift-monitor/)** — take the
 alarm line and move it. The simulation itself runs in the page, at a fixed seed.
@@ -34,15 +36,14 @@ the same 0.2 means three different things:
 <!-- figures:regimes -->
 | Observations per check | Index with no drift, 95th | Index under a 0.3σ shift, 5th | Do they separate? |
 |---|---|---|---|
-| 100 | 0.186 | 0.067 | no — noise swamps the shift |
-| 200 | 0.087 | 0.065 | no |
-| 350 | 0.051 | 0.064 | yes, and the line belongs at 0.057 |
+| 100 | 0.188 | 0.088 | no — noise swamps the shift |
+| 200 | 0.087 | 0.067 | no |
+| 350 | 0.059 | 0.060 | yes, and the line belongs at 0.059 |
 | 2,000 | 0.009 | 0.069 | yes, comfortably |
+
+At a hundred observations a check, pure noise reaches **2.2 times** the size of the shift you are hunting. A threshold there is a coin toss dressed as a control — and the coin lands "alarm" often enough that the team learns to ignore it.
 <!-- /figures:regimes -->
 
-At a hundred observations a check, pure noise reaches twice the size of the shift you are
-hunting. A threshold there is a coin toss dressed as a control — and the coin lands "alarm"
-often enough that the team learns to ignore it.
 
 ## What this repository measures, and what it assumes
 
@@ -51,18 +52,29 @@ threshold on it: false alarms a year, detection delay, and the two ribbons, all 
 simulation at a fixed seed. Repeat a visit and you get the same figure — an outil that
 accuses monitors of confusing noise for signal cannot itself flicker.
 
+<!-- figures:conduite -->
+| Measured on an unmoved population | Value | 95 % interval |
+|---|---|---|
+| False alarms a year | 0.00 | — |
+| Years with no false alarm | 100 % | 95 % – 100 % |
+| Checks before a real shift is seen | 27 | — |
+| Shifts never seen inside a year | 83 % | — |
+
+On 80 simulated years at a fixed seed. The interval is the one the sample supports; a rate printed without it claims a precision the draws do not carry.
+<!-- /figures:conduite -->
+
 The one number nobody else can set for you is the shift worth catching. It is not a
 statistical quantity: it is the smallest move that would change a decision, and it belongs
 to whoever owns the model.
 
 <!-- figures:provenance -->
-| | Input | What it is | Why it is that kind |
+|  | Input | What it is | Why it is that kind |
 |---|---|---|---|
 | measured | `faussesAlertesParAn` | false alarms a year on a population that did not move | simulated, fixed seed: no closed form survives small windows and quantile bins |
 | measured | `delaiMedian` | checks before a real shift is seen | same simulation; drifts never seen inside the year are counted apart, not averaged in |
-| assumed | `fenetre` | observations per check | what a weekly or monthly monitoring run actually gathers |
-| assumed | `deplacement` | the real shift worth catching, in standard deviations | the smallest move that would change a decision — nobody else can set it for you |
 | chosen | `seuil` | the alarm threshold on the stability index | 0.2 is the number every note repeats; this repository exists to price it |
+| assumed | `fenetre` | observations per check | what a monthly or weekly monitoring run actually gathers |
+| assumed | `deplacement` | the real shift worth catching, in standard deviations | the smallest move that would change a decision — nobody else can set it for you |
 
 **measured** — run and recorded here  
 **assumed** — a figure a reader substitutes their own for  

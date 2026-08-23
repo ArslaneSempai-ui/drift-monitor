@@ -6,11 +6,17 @@
   "description": "PSI > 0.2 is the number every model-risk note repeats. Priced: how often it cries wolf on stable data, and how long it takes to notice a real shift.",
   "scripts": {
     "start": "node src/server.ts",
-    "test": "tsc --noEmit && node --test src/*.test.*",
+    "test": "tsc --noEmit && node src/dossier.ts --check && node --test src/*.test.*",
     "typecheck": "tsc --noEmit",
-    "pages": "tsc -p tsconfig.web.json && node src/pages.ts && node src/verifier-ecran.mjs . 2",
-    "captures": "node src/capturer.mjs ."
+    "pages": "tsc -p tsconfig.web.json && node src/pages.ts && node src/verifier-ecran.mjs . 3",
+    "captures": "node src/capturer.mjs .",
+    "figures": "node src/dossier.ts"
   },
-  "engines": { "node": ">=24" },
-  "devDependencies": { "typescript": "^5.9.0", "@types/node": "^24.0.0" }
+  "engines": {
+    "node": ">=24"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.0",
+    "@types/node": "^24.0.0"
+  }
 }

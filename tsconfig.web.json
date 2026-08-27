@@ -1,9 +1,21 @@
 {
   "compilerOptions": {
-    "target": "ES2023", "lib": ["ES2023", "DOM"], "module": "ESNext",
-    "moduleResolution": "Bundler", "allowImportingTsExtensions": true,
-    "rewriteRelativeImportExtensions": true, "outDir": "docs/js",
-    "noEmit": false, "strict": true, "skipLibCheck": true, "types": []
+    "target": "ES2023",
+    "lib": [
+      "ES2023",
+      "DOM"
+    ],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "allowImportingTsExtensions": true,
+    "rewriteRelativeImportExtensions": true,
+    "outDir": "docs/js",
+    "noEmit": false,
+    "strict": true,
+    "skipLibCheck": true,
+    "types": []
   },
-  "files": ["src/derive.ts", "src/provenance.ts"]
+  "files": [
+    "src/derive.ts"
+  ]
 }

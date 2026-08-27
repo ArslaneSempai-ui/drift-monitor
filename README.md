@@ -31,7 +31,7 @@ Node with native TypeScript, no build step, no runtime dependencies.
 
 The index of a window is a random variable. Its spread depends on the window size and the
 number of bins — on how much data you gathered, not on whether your model is any good. So
-the same 0.2 means three different things:
+the same 0.2 means something different at every window size:
 
 <!-- figures:regimes -->
 | Observations per check | Index with no drift, 95th | Index under a 0.3σ shift, 5th | Do they separate? |

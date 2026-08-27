@@ -55,12 +55,23 @@ const etat = () => {
 window.LOCAL = async (chemin, corps) => {
   if (chemin === "/api/etat") return etat();
   if (chemin === "/api/reglage") {
-    if (corps.remise) reglage = { ...REGLAGE };
-    else for (const [cle, bornes] of Object.entries(BORNES)) {
-      const v = Number(corps[cle]);
-      if (Number.isFinite(v)) reglage = { ...reglage, [cle]: Math.min(bornes[1], Math.max(bornes[0], v)) };
+    if (corps.remise) { reglage = { ...REGLAGE }; return etat(); }
+    /* LA CONVERSION PRECEDAIT LA GARDE, ET LA GARDE NE GARDAIT RIEN.
+       Number("") vaut 0 : un champ vide etait FINI, donc accepte, puis ramene par le clamp
+       sur la borne basse. Le clamp n etait pas la parade, il etait le masque — le reglage
+       affiche n etait plus celui qu on croyait lire, et le seuil publie suivait.
+       Le serveur portait deja cette correction ; cette copie-ci ne l avait pas. */
+    const refuses = [];
+    for (const [cle, bornes] of Object.entries(BORNES)) {
+      if (!(cle in corps)) continue;
+      const v = corps[cle];
+      if (typeof v === "number" && Number.isFinite(v)) {
+        reglage = { ...reglage, [cle]: Math.min(bornes[1], Math.max(bornes[0], v)) };
+      } else {
+        refuses.push(cle + "=" + JSON.stringify(v));
+      }
     }
-    return etat();
+    return { ...etat(), refuses };
   }
   return {};
 };

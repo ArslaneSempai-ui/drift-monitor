@@ -43,7 +43,7 @@ const lignesRegimes = MONTREES.map((fenetre) => {
   const derive = ruban.derive.bas[i]!;
   const separe = calme < derive;
   const verdict = !separe
-    ? (calme > derive * 1.5 ? "no — noise swamps the shift" : "no")
+    ? (calme > derive * 1.5 ? "no: noise swamps the shift" : "no")
     : (separation.fenetre === fenetre
         ? `yes, and the line belongs at ${n3(separation.seuil!)}`
         : "yes, comfortably");
@@ -61,8 +61,8 @@ const bruit100 = ruban.calme.haut[ruban.fenetres.indexOf(100)]!;
 
 run(fileURLToPath(new URL("../README.md", import.meta.url)), {
   lede: [
-    `**The finding.** A shift of ${REGLAGE.deplacement} standard deviations — enough to matter`,
-    `on a risk model — moves the index to **${n3(ruban.signal)}** on this population. The alarm is`,
+    `**The finding.** A shift of ${REGLAGE.deplacement} standard deviations, enough to matter`,
+    `on a risk model, moves the index to **${n3(ruban.signal)}** on this population. The alarm is`,
     `set at **${n3(REGLAGE.seuil)}**. It is above the signal it exists to see: it cannot fire on that`,
     `shift at any window size, and the times it does fire on small windows are noise, not`,
     `detection. Below **${milliers(separation.fenetre ?? 0)} observations per check** the two ribbons overlap and no`,
@@ -75,25 +75,25 @@ run(fileURLToPath(new URL("../README.md", import.meta.url)), {
     lignesRegimes,
   ) + `\n\nAt a hundred observations a check, pure noise reaches `
     + `**${(bruit100 / ruban.signal).toFixed(1)} times** the size of the shift you are hunting. `
-    + `A threshold there is a coin toss dressed as a control — and the coin lands "alarm" often `
+    + `A threshold there is a coin toss dressed as a control, and the coin lands "alarm" often `
     + `enough that the team learns to ignore it.`,
 
   conduite: table(
     ["Measured on an unmoved population", "Value", "95 % interval"],
     [
-      ["False alarms a year", conduite.faussesAlertesParAn.toFixed(2), "—"],
+      ["False alarms a year", conduite.faussesAlertesParAn.toFixed(2), "n/a"],
       ["Years with no false alarm", pct(conduite.anneesTranquilles),
        `${pct(bas)} – ${pct(haut)}`],
-      ["Checks before a real shift is seen", String(conduite.delaiMedian ?? "never"), "—"],
-      ["Shifts never seen inside a year", pct(conduite.jamaisVues), "—"],
+      ["Checks before a real shift is seen", String(conduite.delaiMedian ?? "never"), "n/a"],
+      ["Shifts never seen inside a year", pct(conduite.jamaisVues), "n/a"],
     ],
   ) + `\n\nOn ${conduite.tirages} simulated years at a fixed seed. The interval is the one the `
     + `sample supports; a rate printed without it claims a precision the draws do not carry.`,
 
   provenance: table(
     ["", "Input", "What it is", "Why it is that kind"],
-    INVENTAIRE.map((e) => [e.provenance, `\`${e.name}\``, e.what, e.note ?? "—"]),
-  ) + `\n\n**measured** — run and recorded here  \n`
-    + `**assumed** — a figure a reader substitutes their own for  \n`
-    + `**chosen** — a figure I picked, and the verdict moves with it`,
+    INVENTAIRE.map((e) => [e.provenance, `\`${e.name}\``, e.what, e.note ?? "n/a"]),
+  ) + `\n\n**measured**: run and recorded here  \n`
+    + `**assumed**: a figure a reader substitutes their own for  \n`
+    + `**chosen**: a figure I picked, and the verdict moves with it`,
 });

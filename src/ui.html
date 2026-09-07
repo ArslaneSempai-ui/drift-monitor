@@ -45,7 +45,7 @@ const api = async (chemin, corps) => {
 
 const T = {
   h1: "The drift threshold sits above the signal",
-  lede: "Every model-risk note says to alarm when the stability index passes 0.2. That number is not a property of your data — and on a shift worth catching, it is above the signal it is meant to see.",
+  lede: "Every model-risk note says to alarm when the stability index passes 0.2. That number is not a property of your data, and on a shift worth catching, it is above the signal it is meant to see.",
 
   releve: "This threshold, priced",
   signal: "index of the shift you want to catch",
@@ -53,18 +53,18 @@ const T = {
   fausses: "false alarms a year",
   jamais: "of real drifts never seen inside a year",
 
-  aveugle: (s, seuil) => `<b>The threshold is above the signal.</b> The shift you asked to catch moves the index to ${s}; the alarm is set at ${seuil}. It cannot fire on that shift — the times it fires at small windows are noise, not detection.`,
+  aveugle: (s, seuil) => `<b>The threshold is above the signal.</b> The shift you asked to catch moves the index to ${s}; the alarm is set at ${seuil}. It cannot fire on that shift: the times it fires at small windows are noise, not detection.`,
   bruite: (n) => `<b>The threshold is inside the noise.</b> It fires ${n} times a year on data that did not move, and a team that has cried wolf three times is not believed the fourth.`,
   bon: (d) => `<b>This threshold separates.</b> It sits above the noise and below the signal; a real shift is seen in ${d} checks.`,
 
   titreRubans: "Where a threshold can exist at all",
-  rubansQuoi: "Two ribbons: what the index does when nothing moves, and what it does under the shift you want to catch. Both are simulated on this population. Take the line and move it — where the ribbons overlap, no line separates them, and no threshold works at any value.",
+  rubansQuoi: "Two ribbons: what the index does when nothing moves, and what it does under the shift you want to catch. Both are simulated on this population. Take the line and move it: where the ribbons overlap, no line separates them, and no threshold works at any value.",
   figRubansTitre: (n) => `Index against window size, 5th to 95th percentile over ${n} draws`,
   figRubansAria: "Two horizontal ribbons across window size: the stability index with no drift, which narrows as the window grows, and the index under a real shift, which does not. A draggable horizontal line is the alarm threshold; where the ribbons overlap it cannot separate them.",
   nomCalme: "nothing moved", nomDerive: "real shift",
   axeX: "observations per check", axeY: "stability index",
   etiqSeuil: (v) => `alarm at ${v}`,
-  separe: (f, s) => `The ribbons part at <b>${f} observations</b> per check. Below that, no threshold separates noise from this shift. Above it, the line belongs near <b>${s}</b> — not 0.2.`,
+  separe: (f, s) => `The ribbons part at <b>${f} observations</b> per check. Below that, no threshold separates noise from this shift. Above it, the line belongs near <b>${s}</b>, not 0.2.`,
   separePas: "The ribbons overlap at every window size on this screen: with these settings the check cannot work, whatever number is written in the note.",
 
   titreAnnee: "A year of checks, at this setting",
@@ -81,7 +81,7 @@ const T = {
   controlesParAn: "Checks a year", deplacement: "Shift worth catching (σ)",
   defaut: "Back to 0.2 and a 500-row window",
 
-  provenance: "The population is synthetic and stated as such. What is <b>measured</b> here is the behaviour of the threshold on it — false alarms and detection delay, by simulation at a fixed seed, so two visits give the same figure. The threshold 0.2 is <b>chosen</b>: it is the number the notes repeat, and pricing it is what this repository is for.",
+  provenance: "The population is synthetic and stated as such. What is <b>measured</b> here is the behaviour of the threshold on it: false alarms and detection delay, by simulation at a fixed seed, so two visits give the same figure. The threshold 0.2 is <b>chosen</b>: it is the number the notes repeat, and pricing it is what this repository is for.",
 };
 const t = () => T;
 
@@ -111,7 +111,7 @@ function blocVerdict() {
   let html;
   if (s > r.signal) html = `<div class="renvoi defavorable">${L.aveugle(n3(r.signal), n3(s))}</div>`;
   else if (c.faussesAlertesParAn >= 1) html = `<div class="renvoi attention">${L.bruite(c.faussesAlertesParAn.toFixed(1))}</div>`;
-  else html = `<div class="renvoi favorable">${L.bon(c.delaiMedian ?? "—")}</div>`;
+  else html = `<div class="renvoi favorable">${L.bon(c.delaiMedian ?? "n/a")}</div>`;
   $("#verdict").innerHTML = html;
 }
 

@@ -5,15 +5,15 @@ when it passes **0.2**. That number is repeated as if it were a property of the 
 is not, and this prices it.
 
 <!-- figures:lede -->
-**The finding.** A shift of 0.3 standard deviations — enough to matter
-on a risk model — moves the index to **0.087** on this population. The alarm is
+**The finding.** A shift of 0.3 standard deviations, enough to matter
+on a risk model, moves the index to **0.087** on this population. The alarm is
 set at **0.200**. It is above the signal it exists to see: it cannot fire on that
 shift at any window size, and the times it does fire on small windows are noise, not
 detection. Below **350 observations per check** the two ribbons overlap and no
 threshold separates them at all. Where one exists, it belongs near **0.059**.
 <!-- /figures:lede -->
 
-**[Try it in your browser →](https://arslanesempai-ui.github.io/drift-monitor/)** — take the
+**[Try it in your browser →](https://arslanesempai-ui.github.io/drift-monitor/)**. Take the
 alarm line and move it. The simulation itself runs in the page, at a fixed seed.
 
 ![Moving the alarm line: above the signal, then inside the noise, and never both](images/seuil.gif)
@@ -30,18 +30,18 @@ Node with native TypeScript, no build step, no runtime dependencies.
 ## Why a folk constant survives
 
 The index of a window is a random variable. Its spread depends on the window size and the
-number of bins — on how much data you gathered, not on whether your model is any good. So
+number of bins, on how much data you gathered, not on whether your model is any good. So
 the same 0.2 means something different at every window size:
 
 <!-- figures:regimes -->
 | Observations per check | Index with no drift, 95th | Index under a 0.3σ shift, 5th | Do they separate? |
 |---|---|---|---|
-| 100 | 0.188 | 0.088 | no — noise swamps the shift |
+| 100 | 0.188 | 0.088 | no: noise swamps the shift |
 | 200 | 0.087 | 0.067 | no |
 | 350 | 0.059 | 0.060 | yes, and the line belongs at 0.059 |
 | 2,000 | 0.009 | 0.069 | yes, comfortably |
 
-At a hundred observations a check, pure noise reaches **2.2 times** the size of the shift you are hunting. A threshold there is a coin toss dressed as a control — and the coin lands "alarm" often enough that the team learns to ignore it.
+At a hundred observations a check, pure noise reaches **2.2 times** the size of the shift you are hunting. A threshold there is a coin toss dressed as a control, and the coin lands "alarm" often enough that the team learns to ignore it.
 <!-- /figures:regimes -->
 
 
@@ -49,16 +49,16 @@ At a hundred observations a check, pure noise reaches **2.2 times** the size of 
 
 The population is synthetic and says so. What is **measured** is the behaviour of the
 threshold on it: false alarms a year, detection delay, and the two ribbons, all by
-simulation at a fixed seed. Repeat a visit and you get the same figure — an outil that
+simulation at a fixed seed. Repeat a visit and you get the same figure; an outil that
 accuses monitors of confusing noise for signal cannot itself flicker.
 
 <!-- figures:conduite -->
 | Measured on an unmoved population | Value | 95 % interval |
 |---|---|---|
-| False alarms a year | 0.00 | — |
+| False alarms a year | 0.00 | n/a |
 | Years with no false alarm | 100 % | 95 % – 100 % |
-| Checks before a real shift is seen | 27 | — |
-| Shifts never seen inside a year | 83 % | — |
+| Checks before a real shift is seen | 27 | n/a |
+| Shifts never seen inside a year | 83 % | n/a |
 
 On 80 simulated years at a fixed seed. The interval is the one the sample supports; a rate printed without it claims a precision the draws do not carry.
 <!-- /figures:conduite -->
@@ -74,16 +74,16 @@ to whoever owns the model.
 | measured | `delaiMedian` | checks before a real shift is seen | same simulation; drifts never seen inside the year are counted apart, not averaged in |
 | chosen | `seuil` | the alarm threshold on the stability index | 0.2 is the number every note repeats; this repository exists to price it |
 | assumed | `fenetre` | observations per check | what a monthly or weekly monitoring run actually gathers |
-| assumed | `deplacement` | the real shift worth catching, in standard deviations | the smallest move that would change a decision — nobody else can set it for you |
+| assumed | `deplacement` | the real shift worth catching, in standard deviations | the smallest move that would change a decision; nobody else can set it for you |
 
-**measured** — run and recorded here  
-**assumed** — a figure a reader substitutes their own for  
-**chosen** — a figure I picked, and the verdict moves with it
+**measured**: run and recorded here  
+**assumed**: a figure a reader substitutes their own for  
+**chosen**: a figure I picked, and the verdict moves with it
 <!-- /figures:provenance -->
 
 ## The precaution that is never written down
 
 An empty bin gives a logarithm of zero. Left alone, the index runs to infinity on exactly
-the windows where you have least information — so the control screams loudest where it knows
+the windows where you have least information, so the control screams loudest where it knows
 least. Half an observation is substituted per empty bin, and a test holds that the index
 stays finite while still calling a genuinely shifted window shifted.

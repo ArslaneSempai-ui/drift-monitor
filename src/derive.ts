@@ -245,7 +245,7 @@ export const INVENTAIRE: Inventory = [
   { provenance: "assumed", name: "fenetre", what: "observations per check",
     note: "what a monthly or weekly monitoring run actually gathers" },
   { provenance: "assumed", name: "deplacement", what: "the real shift worth catching, in standard deviations",
-    note: "the smallest move that would change a decision — nobody else can set it for you" },
+    note: "the smallest move that would change a decision; nobody else can set it for you" },
 ];
 
 export type Ruban = {

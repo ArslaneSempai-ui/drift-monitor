@@ -60,7 +60,7 @@ window.LOCAL_POSE && window.LOCAL_POSE();
 ` + "</" + "script>\n";
 
 const BANNIERE = `<p class="renvoi" style="margin-bottom:1.5rem">
-This runs entirely in your browser — the simulation itself, not a canned result, at a fixed
+This runs entirely in your browser: the simulation itself, not a canned result, at a fixed
 seed so two visits agree. <b>Take the alarm line</b> and move it: where the two ribbons
 overlap, no value of it separates noise from the shift. The population is synthetic.
 <a href="https://github.com/ArslaneSempai-ui/drift-monitor">Source and method</a>.
